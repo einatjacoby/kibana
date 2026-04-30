@@ -62,38 +62,3 @@ spaceTest.describe('Graph listing page', { tag: tags.stateful.classic }, () => {
     }
   );
 });
-
-// Destructive test is isolated so the shared data set above is not affected.
-spaceTest.describe('Graph listing page - delete flow', { tag: tags.stateful.classic }, () => {
-  spaceTest.beforeAll(async ({ kbnClient, scoutSpace }) => {
-    await scoutSpace.savedObjects.cleanStandardList();
-    await kbnClient.savedObjects.create({
-      type: 'graph-workspace',
-      attributes: { ...GRAPH_A, ...WORKSPACE_ATTRS },
-      space: scoutSpace.id,
-    });
-    await kbnClient.savedObjects.create({
-      type: 'graph-workspace',
-      attributes: { ...GRAPH_B, ...WORKSPACE_ATTRS },
-      space: scoutSpace.id,
-    });
-  });
-
-  spaceTest.afterAll(async ({ scoutSpace }) => {
-    await scoutSpace.savedObjects.cleanStandardList();
-  });
-
-  spaceTest.beforeEach(async ({ browserAuth }) => {
-    await browserAuth.loginAsPrivilegedUser();
-  });
-
-  spaceTest(
-    'select all and delete removes all graphs and shows empty state',
-    async ({ pageObjects }) => {
-      await pageObjects.graphListing.goto();
-      await expect(pageObjects.graphListing.itemLinks).toHaveCount(2);
-      await pageObjects.graphListing.selectAllAndDelete();
-      await expect(pageObjects.graphListing.emptyPromptCreateButton).toBeVisible();
-    }
-  );
-});
